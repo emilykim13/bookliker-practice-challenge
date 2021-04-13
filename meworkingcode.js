@@ -5,8 +5,6 @@ document.addEventListener("DOMContentLoaded", () => {
 // Global variables
 const myUser = {"id":1, "username":"pouros"}
 const showPanel = document.getElementById('show-panel')
-let addUser = document.createElement('li')
-
 
 // Get list of books
 const getBooks = () => {
@@ -24,6 +22,27 @@ const removeChild = (list) => {
     }
 }
 
+// Update list of likers
+const updateLikers = (book) => {
+    fetch(`http://localhost:3000/books/${book.id}`, {
+        method: 'PATCH',
+        headers: {
+            'content-type': 'application/json',
+            'accept': 'application/json'
+        },
+        body: JSON.stringify({
+            'users': book.users    
+        })
+    })
+    .then(resp => resp.json())
+    .then(book => {
+        let addUser = document.createElement('li')
+        addUser.innerText = myUser.username
+        
+        const userID = document.getElementById('user-id')
+        userID.append(addUser)
+    })
+}
 
 // Render the book information
 const renderList = (book) => {
@@ -65,10 +84,9 @@ const renderBook = (book) => {
 
     likeButton.addEventListener('click', event => {
         if (book.users.map(user => user.username).includes(myUser.username)){
-            // alert('You have liked this book already!')
-            book.users.pop()
-            unLikeBook(book)
-            // alert("you have unliked this book")
+            alert('You have liked this book already!')
+            // book.users.pop(myUser)
+            // updateLikers(book)
         } else {
             book.users.push(myUser)
             updateLikers(book)
@@ -84,72 +102,13 @@ const renderBook = (book) => {
 
     // render users who liked the book
     const users = document.createElement('ul')
-    users.setAttribute("id", "usersUl-id")
     book.users.forEach(user => {
         const liker = document.createElement('li')
         liker.innerText = user.username
-        liker.setAttribute('id', `user${user.id}`)
-        liker.id = user.id
+        liker.setAttribute('id', 'user-id')
         users.appendChild(liker)
     })
 
     // apend to elements
     showPanel.append(thumbnail, title, subtitle, description, userHeader, users, likeButton)
-}
-
-
-// Update list of likers
-const updateLikers = (book) => {
-    fetch(`http://localhost:3000/books/${book.id}`, {
-        method: 'PATCH',
-        headers: {
-            'content-type': 'application/json',
-            'accept': 'application/json'
-        },
-        body: JSON.stringify({
-            'users': book.users    
-        })
-    })
-    .then(resp => resp.json())
-    .then(book => {
-        // let addUser = document.createElement('li')
-        addUser.innerText = myUser.username
-        const userID = document.getElementById('usersUl-id')
-        userID.append(addUser)
-    })
-}
-
-
-const unLikeBook = (book) => {
-
-    // book.users.pop()
-    // let users = book.users
-    // console.log(users)
-
-    fetch(`http://localhost:3000/books/${book.id}`, {
-        method: "PATCH",
-        headers: {
-            "Content-Type" : "application/json",
-            "Accepts" : "application/json"
-        },
-        body: JSON.stringify({
-            'users': book.users
-        })
-    })
-    
-    .then(resp => resp.json())
-    .then(someBook => {
-        // if (addUser.innerText = myUser.username);
-        // let y = addUser.innerText = myUser.username
-        // console.log(book.users)
-        // let arry = book.users
-        // let lastElement = arry[arry.length - 1]
-        let x = document.getElementById('usersUl-id')
-        let lastElement = x.lastElementChild
-        // lastElement.delete
-        // book.users.pop()
-        x.removeChild(lastElement)
-        console.log(x.lastElementChild)
-        // x.append(addUser)addUser.innerText = myUser.username
-    })
 }
